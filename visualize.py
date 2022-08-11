@@ -5,7 +5,6 @@ from operator import itemgetter
 import matplotlib.pyplot as plt
 import nltk
 import numpy as np
-from sklearn.feature_extraction.text import CountVectorizer
 from wordcloud import WordCloud, get_single_color_func
 
 
@@ -59,27 +58,7 @@ def plot_sd_stock(df):
     plt.show()
 
 
-import pandas as pd
-from sklearn.feature_extraction.text import CountVectorizer
-def get_top_n_words(corpus, n=None):
-    vec = CountVectorizer(stop_words="english").fit(corpus)
-    bag_of_words = vec.transform(corpus)
-    sum_words = bag_of_words.sum(axis=0)
-    words_freq = [(word, sum_words[0, idx]) for word, idx in vec.vocabulary_.items()]
-    words_freq = sorted(words_freq, key=lambda x: x[1], reverse=True)
-    words_freq[:n]
-
-    common_words = get_top_n_words(df["Review Text"], 25)
-    df2 = pd.DataFrame(common_words, columns=["ReviewText", "count"])
-    df2.groupby("ReviewText").sum()["count"].sort_values(ascending=False).iplot(
-        kind="bar",
-        yTitle="Count",
-        linecolor="black",
-        title="Top 25 words in reviews after removing stop words",
-    )
-
-
-def sentiment_worldcloud(df):
+def sentiment_worldcloud(df, num):
     neg_text = df[df["sentiment_label"] == "NEG"]
     pos_text = df[df["sentiment_label"] == "POS"]
     # neut_text = df[df["sentiment_label"] == "NEU"]
@@ -102,8 +81,12 @@ def sentiment_worldcloud(df):
         """
         if n_ngram not in [1, 2, 3]:
             raise ValueError("Invalid ngram value. Expected one of: %s" % n_ngram)
+
         if n_ngram == 1:
-            gs = nltk.word_tokenize(text)
+            gs = nltk.ngrams(
+                text,
+                1,
+            )
 
         elif n_ngram == 2:
             gs = nltk.bigrams(text)
@@ -124,8 +107,14 @@ def sentiment_worldcloud(df):
     flat_text_pos = [item for sublist in pos_text for item in sublist]
     # flat_text_neut = [item for sublist in neut_text for item in sublist]
 
-    neg_fdist = get_ngram_dist(flat_text_neg, 3)
-    pos_fdist = get_ngram_dist(flat_text_pos, 3)
+    neg_fdist = get_ngram_dist(
+        flat_text_neg,
+        n_ngram=num,
+    )
+    pos_fdist = get_ngram_dist(
+        flat_text_pos,
+        n_ngram=num,
+    )
     # neut_fdist = get_ngram_dist(flat_text_neut, 3)
 
     # Most frequent ngrams
@@ -134,18 +123,32 @@ def sentiment_worldcloud(df):
         """
         Returns the top_n frequented terms
         """
-        sorted_dist = sorted(fdist.items(), key=itemgetter(1), reverse=True)
+        sorted_dist = sorted(
+            fdist.items(),
+            key=itemgetter(1),
+            reverse=True,
+        )
         sub_sort = dict(sorted_dist[:top_n])
 
         sub_sort2 = {" ".join(k): v for k, v in sub_sort.items()}
         return sub_sort2
 
     # Subset ngrams
-    neg_sub_sort = get_sub_most_frequnt(neg_fdist, 40)
-    pos_sub_sort = get_sub_most_frequnt(pos_fdist, 40)
+    neg_sub_sort = get_sub_most_frequnt(
+        neg_fdist,
+        40,
+    )
+    pos_sub_sort = get_sub_most_frequnt(
+        pos_fdist,
+        40,
+    )
     # neut_sub_sort = get_sub_most_frequnt(neut_fdist, 40)
 
-    def get_sentiment_for_common_ngrams(neg_sorted, pos_sorted, com_ngrams):
+    def get_sentiment_for_common_ngrams(
+        neg_sorted,
+        pos_sorted,
+        com_ngrams,
+    ):
         """
         For ngrams appearing both in negative and positive reviews,
         assign the sentiment with more frequency.
@@ -164,7 +167,11 @@ def sentiment_worldcloud(df):
 
         return com_2_p, com_2_n
 
-    def get_pos_neg_ngrams(neg_sorted, pos_sorted, com_ngrams):
+    def get_pos_neg_ngrams(
+        neg_sorted,
+        pos_sorted,
+        com_ngrams,
+    ):
         # Function gets, most common neg and pos ngrams
         # 1) Get sets of pos, neg ngrams with common ngram appearing in only one of them
         com_2_p, com_2_n = get_sentiment_for_common_ngrams(
@@ -181,21 +188,34 @@ def sentiment_worldcloud(df):
 
         return pos_uniq_dict, neg_uniq_dict
 
-    def get_all_ngrams(uniq_pos_ngrams, uniq_neg_ngrams):
+    def get_all_ngrams(
+        uniq_pos_ngrams,
+        uniq_neg_ngrams,
+    ):
         # Combine dictionary of pos and neg ngrams to get the freq of all ngrams
         all_ngrams = uniq_pos_ngrams.copy()
         all_ngrams.update(uniq_neg_ngrams)
         return all_ngrams
 
-    def get_uniq_pos_neg_all_ngrams(neg_sub_sort, pos_sub_sort):
+    def get_uniq_pos_neg_all_ngrams(
+        neg_sub_sort,
+        pos_sub_sort,
+    ):
         # 1. Get the common ngrams appearing in both pos and neg reviews
 
-        com_ngrams = set(neg_sub_sort.keys()) & set(pos_sub_sort.keys())
+        com_ngrams = set(neg_sub_sort.keys()) & set(
+            pos_sub_sort.keys(),
+        )
         # 2. Remove common ngrams from the one with least freq and add it to the one with most freq
         uniq_pos_ngrams, uniq_neg_ngrams = get_pos_neg_ngrams(
-            neg_sub_sort, pos_sub_sort, com_ngrams
+            neg_sub_sort,
+            pos_sub_sort,
+            com_ngrams,
         )
-        all_ngrams = get_all_ngrams(uniq_pos_ngrams, uniq_neg_ngrams)
+        all_ngrams = get_all_ngrams(
+            uniq_pos_ngrams,
+            uniq_neg_ngrams,
+        )
 
         return uniq_pos_ngrams, uniq_neg_ngrams, all_ngrams
 
@@ -257,8 +277,11 @@ def sentiment_worldcloud(df):
     ):
         return "hsl(100, 100%%, %d%%)" % random.randint(20, 40)
 
-    def plot_pos_neg_wordclouds(neg_ngrams_sort, pos_ngrams_sort):
-        fig = plt.figure(figsize=(16, 12))
+    def plot_pos_neg_wordclouds(
+        neg_ngrams_sort,
+        pos_ngrams_sort,
+    ):
+        plt.figure(figsize=(16, 12))
         plt.subplot(121)
 
         wc1 = WordCloud(
@@ -273,7 +296,7 @@ def sentiment_worldcloud(df):
             wc1.recolor(color_func=red_color_func, random_state=3),
             interpolation="bilinear",
         )
-        axis("off")
+        plt.axis("off")
 
         wc2 = WordCloud(
             width=800,
@@ -289,11 +312,14 @@ def sentiment_worldcloud(df):
             wc2.recolor(color_func=green_color_func, random_state=3),
             interpolation="bilinear",
         )
-        axis("off")
-        show()
+        plt.axis("off")
+        plt.show()
 
     # Plot
-    plot_pos_neg_wordclouds(norm_freqs_neg, norm_freqs_pos)
+    plot_pos_neg_wordclouds(
+        norm_freqs_neg,
+        norm_freqs_pos,
+    )
 
     def plot_allwords_wordclouds(norm_freqs_all):
 
@@ -317,7 +343,10 @@ def sentiment_worldcloud(df):
         default_color = "grey"
 
         # Create a color function with multiple tones
-        grouped_color_func = GroupedColorFunc(color_to_words, default_color)
+        grouped_color_func = GroupedColorFunc(
+            color_to_words,
+            default_color,
+        )
 
         # Apply our color function
         wc.recolor(color_func=grouped_color_func)

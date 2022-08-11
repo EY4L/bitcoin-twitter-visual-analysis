@@ -16,20 +16,10 @@ from PIL import Image
 from spacymoji import Emoji
 from transformers import AutoConfig, AutoTokenizer, pipeline
 from wordcloud import STOPWORDS, WordCloud, get_single_color_func
-from load import load_tweets
+from load import load_processed_tweets
 %pylab inline
-
 # %%
-df_tweets =  pd.read_csv(
-    Path("Bitcoin_tweets_processed_recent.csv"))
-
-df_tweets = pd.read_csv(
-    Path("Bitcoin_tweets_processed_recent.csv"),
-    parse_dates=[
-        'user_created', 
-        'date',
-        ],
-)
+df_tweets = load_processed_tweets("bitcoin_tweets_processed.csv")
 # %% Subsetting df on sentiment
 neg_text = df_tweets[df_tweets["sentiment_label"] == "NEG"]
 pos_text = df_tweets[df_tweets["sentiment_label"] == "POS"]
@@ -236,7 +226,7 @@ def plot_pos_neg_wordclouds(neg_ngrams_sort, pos_ngrams_sort):
 
     plt.imshow(wc1.recolor(color_func=red_color_func, random_state=3),
                interpolation="bilinear")
-    axis("off")
+    plt.axis("off")
 
     wc2 = WordCloud(width=800, height=400, background_color="white", max_words=20, min_font_size=8)\
                 .generate_from_frequencies(pos_ngrams_sort)
@@ -245,8 +235,8 @@ def plot_pos_neg_wordclouds(neg_ngrams_sort, pos_ngrams_sort):
 
     plt.imshow(wc2.recolor(color_func=green_color_func, random_state=3),
                interpolation="bilinear")
-    axis("off")
-    show()
+    plt.axis("off")
+    plt.show()
 
 
 # %%

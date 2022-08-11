@@ -2,13 +2,10 @@
 import mplfinance as fplt
 import pandas as pd
 
-from load import load_stocks, load_tweets
+from load import load_processed_tweets, load_stocks, load_tweets
 from nlp_tasks import create_corpus, sentiment_extraction
 from preprocess import cleaning
 from visualize import plot_sd_stock, sentiment_worldcloud
-
-# from nltk.util import bigrams, trigrams
-
 
 # %%
 # Load data
@@ -82,15 +79,31 @@ df_tweets.to_csv("bitcoin_tweets_processed.csv")
 
 
 # %%
+
+# Load processed data
+df = load_processed_tweets("bitcoin_tweets_processed.csv")
+
 # EDA
 
-# Twitter sentiment
+# Unigram
+sentiment_worldcloud(
+    df,
+    1,
+)
 
-# df_tweets["corpus_bigrams"] = df_tweets["corpus_unigrams"].apply(
-#     lambda c: ["_".join(item) for item in bigrams(c)]
-# )
-# df_tweets["corpus_trigrams"] = df_tweets["corpus_unigrams"].apply(
-#     lambda c: ["_".join(item) for item in trigrams(c)]
-# )
+# Bigram
+sentiment_worldcloud(
+    df,
+    2,
+)
 
-sentiment_worldcloud(df_tweets)
+# Trigram
+sentiment_worldcloud(
+    df,
+    3,
+)
+# %%
+
+# Before this bin the shit into weeks using pandas.cut
+
+x = df_tweets.groupby(by=['date', 'sentiment_label']).count()[['sentiment_score']].drop('NEU', axis=0, level=1).reset_index()

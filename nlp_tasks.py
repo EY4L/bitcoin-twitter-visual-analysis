@@ -1,11 +1,12 @@
 import numpy as np
 import spacy
-from spacymoji import Emoji
+
+# from spacymoji import Emoji
 from transformers import pipeline
 
 nlp = spacy.load("en_core_web_md")
-emoji = Emoji(nlp)
-nlp.add_pipe("emoji")
+# emoji = Emoji(nlp)
+# nlp.add_pipe("emoji")
 
 
 def create_corpus(text):
@@ -72,11 +73,7 @@ def sentiment_extraction(df):
     # Expects the df to have col 'text'
     checkpoint = "pysentimiento/robertuito-sentiment-analysis"
 
-    pipe = pipeline(
-        model=checkpoint,
-        truncation=True,
-        max_length=100,
-    )
+    pipe = pipeline(model=checkpoint, truncation=True, max_length=100,)
 
     so_dict = df["text"].apply(pipe)
 
