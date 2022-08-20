@@ -4,7 +4,7 @@ import spacy
 # from spacymoji import Emoji
 from transformers import pipeline
 
-nlp = spacy.load("en_core_web_md")
+nlp = spacy.load("en_core_web_lg")
 # emoji = Emoji(nlp)
 # nlp.add_pipe("emoji")
 

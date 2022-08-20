@@ -11,9 +11,10 @@ yfinance = "^0.1.74"
 mplfinance = "^0.12.9-beta.1"
 seaborn = "^0.11.2"
 nltk = "^3.7"
-spacy = "^3.4.1"
 wordcloud = "^1.8.2"
 transformers = "^4.21.1"
+spacy = "^3.4.1"
+en-core-web-lg = {url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_lg-3.4.0/en_core_web_lg-3.4.0-py3-none-any.whl"}
 
 [tool.poetry.dev-dependencies]
 black = "*"

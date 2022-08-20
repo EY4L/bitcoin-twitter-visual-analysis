@@ -51,6 +51,9 @@ def load_stocks(path):
         errors="coerce",
     ).dt.date
 
+    df["Date"] = pd.to_datetime(df["Date"])
+    df = df.set_index("Date")
+
     return df
 
 
