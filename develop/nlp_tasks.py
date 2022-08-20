@@ -73,7 +73,11 @@ def sentiment_extraction(df):
     # Expects the df to have col 'text'
     checkpoint = "pysentimiento/robertuito-sentiment-analysis"
 
-    pipe = pipeline(model=checkpoint, truncation=True, max_length=100,)
+    pipe = pipeline(
+        model=checkpoint,
+        truncation=True,
+        max_length=100,
+    )
 
     so_dict = df["text"].apply(pipe)
 

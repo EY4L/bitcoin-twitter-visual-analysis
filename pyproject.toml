@@ -1,0 +1,40 @@
+[tool.poetry]
+name = "Project Name"
+version = "0.1.0"
+description = "Project Description"
+authors = ["Authors Names"]
+
+[tool.poetry.dependencies]
+python = "3.9.*"
+pandas = "^1"
+yfinance = "^0.1.74"
+mplfinance = "^0.12.9-beta.1"
+seaborn = "^0.11.2"
+nltk = "^3.7"
+spacy = "^3.4.1"
+wordcloud = "^1.8.2"
+transformers = "^4.21.1"
+
+[tool.poetry.dev-dependencies]
+black = "*"
+flake8 = "*"
+isort = "*"
+nbstripout = "*"
+pydocstyle = {extras = ["toml"], version = "*"}
+notebook = "*"
+rich = "*"
+pre-commit = "*"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+
+[tool.isort]
+profile = 'black'
+
+[tool.pydocstyle]
+convention = "google"
+add-ignore = "D100,D101,D102,D103,D104,D105,D106,D107"

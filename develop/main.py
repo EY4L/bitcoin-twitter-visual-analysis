@@ -1,21 +1,21 @@
 # %%
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import mplfinance as fplt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from nltk import FreqDist
-
 from load import load_processed_tweets, load_stocks, load_tweets
 from nlp_tasks import create_corpus, sentiment_extraction
+from nltk import FreqDist
 from preprocess import cleaning
 from visualize import plot_sd_stock, sentiment_worldcloud
 
 # %%
 # Load data
-df_tweets = load_tweets("bitcoin_tweets.csv")
-df_stocks = load_stocks("bitcoin_history.csv")
-
+df_tweets = load_tweets(Path("data", "raw", "bitcoin_tweets.csv"))
+df_stocks = load_stocks(Path("data", "raw", "bitcoin_history.csv"))
 
 # %%
 # Preprocessing
@@ -363,7 +363,7 @@ g.map_dataframe(
     dodge=True,
     ci=False,
 )
-g.
+
 g.set_titles("Normalised count of mentions per month")
 # NUMBER OF MENTIONS PER WEEK
 # %%
